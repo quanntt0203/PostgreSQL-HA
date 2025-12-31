@@ -1,0 +1,36 @@
+# Use the official Citus image as a base which already has PG + Citus extension
+FROM citusdata/citus:postgres_16 AS citus-patroni
+#FROM citusdata/citus:12.1
+
+# Set environment variables to avoid prompts during installation
+ENV DEBIAN_FRONTEND=noninteractive
+
+RUN apt-get update && apt-get install -y python3-venv python3-pip libpq-dev gcc sudo vi && \
+    rm -rf /var/lib/apt/lists/*
+
+# Create a venv and install patroni inside it
+RUN python3 -m venv /opt/patroni_venv
+RUN /opt/patroni_venv/bin/pip install --upgrade pip && \
+    /opt/patroni_venv/bin/pip install psycopg2-binary patroni[etcd3]
+
+# Add the venv to the PATH so 'patroni' command works globally
+ENV PATH="/opt/patroni_venv/bin:$PATH"
+
+# 3. Setup Permissions
+# Patroni needs to run as the 'postgres' user
+# We ensure the postgres user has access to its own home and data directories
+RUN mkdir -p /var/lib/postgresql/data /etc/patroni && \
+    chown -R postgres:postgres /var/lib/postgresql /etc/patroni && \
+    chmod 700 /var/lib/postgresql/data /etc/patroni
+
+# 4. Prepare for Patroni execution
+USER postgres
+
+# Expose Postgres (5432) and Patroni REST API (8008)
+EXPOSE 5432 8008
+
+# The entrypoint will be the Patroni binary
+# It will look for a config file (mapped via Volume) or Environment Variables
+ENTRYPOINT ["patroni"]
+#CMD ["/etc/patroni/patroni.yml"]
+#ENTRYPOINT ["bash"]

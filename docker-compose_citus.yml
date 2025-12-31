@@ -1,0 +1,422 @@
+networks:
+  citus_net:
+    driver: bridge
+
+volumes:
+  etcd_data:
+  coord1_data:
+  coord2_data:
+  coord3_data:
+  work1_1_data:
+  work1_2_data:
+  work1_3_data:
+  work1_4_data:
+  work2_1_data:
+  work2_2_data:
+
+services:
+  # ===== ETCD for cluster coordination =====
+  etcd:
+    image: quay.io/coreos/etcd:v3.5.0
+    container_name: citus_etcd
+    networks: [citus_net]
+    ports:
+      - "12379:2379"
+      - "12380:2380"
+    volumes:
+      - etcd_data:/etcd-data:rw
+    command: 
+      - /usr/local/bin/etcd
+      - --name=etcd
+      - --data-dir=/etcd-data
+      - --advertise-client-urls=http://etcd:2379
+      - --listen-client-urls=http://0.0.0.0:2379
+      - --initial-advertise-peer-urls=http://etcd:2380
+      - --listen-peer-urls=http://0.0.0.0:2380
+      - --initial-cluster=etcd=http://etcd:2380
+    healthcheck:
+      test: ["CMD", "etcdctl", "endpoint", "health", "--endpoints=http://localhost:2379"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ===== COORDINATOR NODES (Group 0) =====
+  coord1:
+    image: citus-postgres16-backrest:1.2
+    container_name: postgres_coord1
+    hostname: postgres_coord1
+    networks: 
+      citus_net:
+        aliases:
+          - postgres_coord1
+    ports:
+      - "5432:5432"  # Primary coordinator port
+    volumes:
+      - coord1_data:/var/lib/postgresql/data
+      - ./patroni/coord-base.yml:/etc/patroni/patroni.yml
+      - ./pgbackrest/pgbackrest_coord.conf:/etc/pgbackrest/pgbackrest.conf:rw
+      - ./logs/patroni_coord1:/var/log/patroni:rw
+      - ./logs/postgresql_coord1:/var/log/postgresql:rw
+      - ./ssh_keys/authorized_keys:/var/lib/postgresql/.ssh/authorized_keys:ro
+      
+    environment:
+      PATRONI_NAME: citus_coord1
+      PATRONI_SCOPE: citus_cluster_mmr
+      PATRONI_ETCD3_HOSTS: etcd:2379
+      PATRONI_POSTGRESQL_LISTEN: 0.0.0.0:5432
+      PATRONI_POSTGRESQL_CONNECT_ADDRESS: postgres_coord1:5432
+      PATRONI_POSTGRESQL_DATA_DIR: /var/lib/postgresql/data/pgdata
+      PATRONI_RESTAPI_LISTEN: 0.0.0.0:8008
+      PATRONI_RESTAPI_CONNECT_ADDRESS: postgres_coord1:8008
+      PATRONI_CITUS_GROUP: 0
+      PATRONI_CITUS_DATABASE: citus_db
+      PATRONI_REPLICATION_USERNAME: replicator
+      PATRONI_REPLICATION_PASSWORD: replpass
+      
+    depends_on:
+      etcd:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    command: ["/etc/patroni/patroni.yml"] # Ensure config is mapped or use Env vars
+
+  coord2:
+    image: citus-postgres16-backrest:1.2
+    container_name: postgres_coord2
+    hostname: postgres_coord2
+    networks: 
+      citus_net:
+        aliases:
+          - postgres_coord2
+    ports:
+      - "5442:5432"
+    volumes:
+      - coord2_data:/var/lib/postgresql/data
+      - ./patroni/coord-base.yml:/etc/patroni/patroni.yml
+      - ./pgbackrest/pgbackrest_coord.conf:/etc/pgbackrest/pgbackrest.conf:rw
+      - ./logs/patroni_coord2:/var/log/patroni:rw
+      - ./logs/postgresql_coord2:/var/log/postgresql:rw
+      - ./ssh_keys/authorized_keys:/var/lib/postgresql/.ssh/authorized_keys:ro
+    
+    environment:
+      PATRONI_NAME: citus_coord2
+      PATRONI_SCOPE: citus_cluster_mmr
+      PATRONI_ETCD3_HOSTS: etcd:2379
+      PATRONI_POSTGRESQL_LISTEN: 0.0.0.0:5432
+      PATRONI_POSTGRESQL_CONNECT_ADDRESS: postgres_coord2:5432
+      PATRONI_POSTGRESQL_DATA_DIR: /var/lib/postgresql/data/pgdata
+      PATRONI_RESTAPI_LISTEN: 0.0.0.0:8008
+      PATRONI_RESTAPI_CONNECT_ADDRESS: postgres_coord2:8008
+      PATRONI_CITUS_GROUP: 0
+      PATRONI_CITUS_DATABASE: citus_db
+      PATRONI_REPLICATION_USERNAME: replicator
+      PATRONI_REPLICATION_PASSWORD: replpass
+      
+    depends_on:
+      etcd:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+    command: ["/etc/patroni/patroni.yml"] # Ensure config is mapped or use Env vars
+
+  coord3:
+    image: citus-postgres16-backrest:1.2
+    container_name: postgres_coord3
+    hostname: postgres_coord3
+    networks: 
+      citus_net:
+        aliases:
+          - postgres_coord3
+    ports:
+      - "5452:5432"
+    volumes:
+      - coord3_data:/var/lib/postgresql/data
+      - ./patroni/coord-base.yml:/etc/patroni/patroni.yml
+      - ./pgbackrest/pgbackrest_coord.conf:/etc/pgbackrest/pgbackrest.conf:rw
+      - ./logs/patroni_coord3:/var/log/patroni:rw
+      - ./logs/postgresql_coord3:/var/log/postgresql:rw
+      - ./ssh_keys/authorized_keys:/var/lib/postgresql/.ssh/authorized_keys:ro
+    
+    environment:
+      PATRONI_NAME: citus_coord3
+      PATRONI_SCOPE: citus_cluster_mmr
+      PATRONI_ETCD3_HOSTS: etcd:2379
+      PATRONI_POSTGRESQL_LISTEN: 0.0.0.0:5432
+      PATRONI_POSTGRESQL_CONNECT_ADDRESS: postgres_coord3:5432
+      PATRONI_POSTGRESQL_DATA_DIR: /var/lib/postgresql/data/pgdata
+      PATRONI_RESTAPI_LISTEN: 0.0.0.0:8008
+      PATRONI_RESTAPI_CONNECT_ADDRESS: postgres_coord3:8008
+      PATRONI_CITUS_GROUP: 0
+      PATRONI_CITUS_DATABASE: citus_db
+      PATRONI_REPLICATION_USERNAME: replicator
+      PATRONI_REPLICATION_PASSWORD: replpass
+      
+    depends_on:
+      etcd:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+    command: ["/etc/patroni/patroni.yml"] # Ensure config is mapped or use Env vars
+
+  # ===== WORKER GROUP 1 =====
+  work1-1:
+    image: citus-postgres16-backrest:1.2
+    container_name: postgres_work1-1
+    hostname: postgres_work1-1
+    networks: 
+      citus_net:
+        aliases:
+          - postgres_work1-1
+    ports:
+      - "5462:5432"
+    volumes:
+      - work1_1_data:/var/lib/postgresql/data
+      - ./patroni/worker1-base.yml:/etc/patroni/patroni.yml
+      - ./pgbackrest/pgbackrest_worker1.conf:/etc/pgbackrest/pgbackrest.conf:rw
+      - ./logs/patroni_work1-1:/var/log/patroni:rw
+      - ./logs/postgresql_work1-1:/var/log/postgresql:rw
+      - ./ssh_keys/authorized_keys:/var/lib/postgresql/.ssh/authorized_keys:ro
+
+    environment:
+      PATRONI_NAME: citus_work1-1
+      PATRONI_SCOPE: citus_cluster_mmr
+      PATRONI_ETCD3_HOSTS: etcd:2379
+      PATRONI_POSTGRESQL_LISTEN: 0.0.0.0:5432
+      PATRONI_POSTGRESQL_CONNECT_ADDRESS: postgres_work1-1:5432
+      PATRONI_POSTGRESQL_DATA_DIR: /var/lib/postgresql/data/pgdata
+      PATRONI_RESTAPI_LISTEN: 0.0.0.0:8008
+      PATRONI_RESTAPI_CONNECT_ADDRESS: postgres_work1-1:8008
+      PATRONI_CITUS_GROUP: 1
+      PATRONI_CITUS_DATABASE: citus_db
+      PATRONI_REPLICATION_USERNAME: replicator
+      PATRONI_REPLICATION_PASSWORD: replpass
+
+    depends_on:
+      etcd:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    command: ["/etc/patroni/patroni.yml"] # Ensure config is mapped or use Env vars
+
+  work1-2:
+    image: citus-postgres16-backrest:1.2
+    container_name: postgres_work1-2
+    hostname: postgres_work1-2
+    networks: 
+      citus_net:
+        aliases:
+          - postgres_work1-2
+    ports:
+      - "5472:5432"
+    volumes:
+      - work1_2_data:/var/lib/postgresql/data
+      - ./patroni/worker1-base.yml:/etc/patroni/patroni.yml
+      - ./pgbackrest/pgbackrest_worker1.conf:/etc/pgbackrest/pgbackrest.conf:rw
+      - ./logs/patroni_work1-2:/var/log/patroni:rw
+      - ./logs/postgresql_work1-2:/var/log/postgresql:rw
+      - ./ssh_keys/authorized_keys:/var/lib/postgresql/.ssh/authorized_keys:ro
+    environment:
+      PATRONI_NAME: citus_work1-2
+      PATRONI_SCOPE: citus_cluster_mmr
+      PATRONI_ETCD3_HOSTS: etcd:2379
+      PATRONI_POSTGRESQL_LISTEN: 0.0.0.0:5432
+      PATRONI_POSTGRESQL_CONNECT_ADDRESS: postgres_work1-2:5432
+      PATRONI_POSTGRESQL_DATA_DIR: /var/lib/postgresql/data/pgdata
+      PATRONI_RESTAPI_LISTEN: 0.0.0.0:8008
+      PATRONI_RESTAPI_CONNECT_ADDRESS: postgres_work1-2:8008
+      PATRONI_CITUS_GROUP: 1
+      PATRONI_CITUS_DATABASE: citus_db
+      PATRONI_REPLICATION_USERNAME: replicator
+      PATRONI_REPLICATION_PASSWORD: replpass
+      
+    depends_on:
+      etcd:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+    command: ["/etc/patroni/patroni.yml"] # Ensure config is mapped or use Env vars
+
+ 
+    image: citus-postgres16-backrest:1.2
+    container_name: postgres_work1-4
+    hostname: postgres_work1-4
+    networks: 
+      citus_net:
+        aliases:
+          - postgres_work1-4
+    ports:
+      - "5574:5432"
+    volumes:
+      - work1_4_data:/var/lib/postgresql/data
+      - ./patroni/worker1-base.yml:/etc/patroni/patroni.yml
+      - ./pgbackrest/pgbackrest_worker1.conf:/etc/pgbackrest/pgbackrest.conf:rw
+      - ./logs/patroni_work1-4:/var/log/patroni:rw
+      - ./logs/postgresql_work1-4:/var/log/postgresql:rw
+      - ./ssh_keys/authorized_keys:/var/lib/postgresql/.ssh/authorized_keys:ro
+
+    environment:
+      PATRONI_NAME: citus_work1-4
+      PATRONI_SCOPE: citus_cluster_mmr
+      PATRONI_ETCD3_HOSTS: etcd:2379
+      PATRONI_POSTGRESQL_LISTEN: 0.0.0.0:5432
+      PATRONI_POSTGRESQL_CONNECT_ADDRESS: postgres_work1-4:5432
+      PATRONI_POSTGRESQL_DATA_DIR: /var/lib/postgresql/data/pgdata
+      PATRONI_RESTAPI_LISTEN: 0.0.0.0:8008
+      PATRONI_RESTAPI_CONNECT_ADDRESS: postgres_work1-4:8008
+      PATRONI_CITUS_GROUP: 1
+      PATRONI_CITUS_DATABASE: citus_db
+      PATRONI_REPLICATION_USERNAME: replicator
+      PATRONI_REPLICATION_PASSWORD: replpass
+
+    depends_on:
+      etcd:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    #command: ["patroni", "--version"]
+    command: ["/etc/patroni/patroni.yml"] # Ensure config is mapped or use Env vars
+
+  # ===== WORKER GROUP 2 =====
+  work2-1:
+    image: citus-postgres16-backrest:1.2
+    container_name: postgres_work2-1
+    hostname: postgres_work2-1
+    networks: 
+      citus_net:
+        aliases:
+          - postgres_work2-1
+    ports:
+      - "5482:5432"
+    volumes:
+      - work2_1_data:/var/lib/postgresql/data
+      - ./patroni/worker2-base.yml:/etc/patroni/patroni.yml
+      - ./pgbackrest/pgbackrest_worker2.conf:/etc/pgbackrest/pgbackrest.conf:rw
+      - ./logs/patroni_work2-1:/var/log/patroni:rw
+      - ./logs/postgresql_work2-1:/var/log/postgresql:rw
+      - ./ssh_keys/authorized_keys:/var/lib/postgresql/.ssh/authorized_keys:ro
+
+    environment:
+      PATRONI_NAME: citus_work2-1
+      PATRONI_SCOPE: citus_cluster_mmr
+      PATRONI_ETCD3_HOSTS: etcd:2379
+      PATRONI_POSTGRESQL_LISTEN: 0.0.0.0:5432
+      PATRONI_POSTGRESQL_CONNECT_ADDRESS: postgres_work2-1:5432
+      PATRONI_POSTGRESQL_DATA_DIR: /var/lib/postgresql/data/pgdata
+      PATRONI_RESTAPI_LISTEN: 0.0.0.0:8008
+      PATRONI_RESTAPI_CONNECT_ADDRESS: postgres_work2-1:8008
+      PATRONI_CITUS_GROUP: 2
+      PATRONI_CITUS_DATABASE: citus_db
+      PATRONI_REPLICATION_USERNAME: replicator
+      PATRONI_REPLICATION_PASSWORD: replpass
+      
+    depends_on:
+      etcd:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    command: ["/etc/patroni/patroni.yml"] # Ensure config is mapped or use Env vars
+
+  work2-2:
+    image: citus-postgres16-backrest:1.2
+    container_name: postgres_work2-2
+    hostname: postgres_work2-2
+    networks: 
+      citus_net:
+        aliases:
+          - postgres_work2-2
+    ports:
+      - "5492:5432"
+    volumes:
+      - work2_2_data:/var/lib/postgresql/data
+      - ./patroni/worker2-base.yml:/etc/patroni/patroni.yml
+      - ./pgbackrest/pgbackrest_worker2.conf:/etc/pgbackrest/pgbackrest.conf:rw
+      - ./logs/patroni_work2-2:/var/log/patroni:rw
+      - ./logs/postgresql_work2-2:/var/log/postgresql:rw
+      - ./ssh_keys/authorized_keys:/var/lib/postgresql/.ssh/authorized_keys:ro
+    environment:
+      PATRONI_NAME: citus_work2-2
+      PATRONI_SCOPE: citus_cluster_mmr
+      PATRONI_ETCD3_HOSTS: etcd:2379
+      PATRONI_POSTGRESQL_LISTEN: 0.0.0.0:5432
+      PATRONI_POSTGRESQL_CONNECT_ADDRESS: postgres_work2-2:5432
+      PATRONI_POSTGRESQL_DATA_DIR: /var/lib/postgresql/data/pgdata
+      PATRONI_RESTAPI_LISTEN: 0.0.0.0:8008
+      PATRONI_RESTAPI_CONNECT_ADDRESS: postgres_work2-2:8008
+      PATRONI_CITUS_GROUP: 2
+      PATRONI_CITUS_DATABASE: citus_db
+      PATRONI_REPLICATION_USERNAME: replicator
+      PATRONI_REPLICATION_PASSWORD: replpass
+      
+    depends_on:
+      etcd:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    command: ["/etc/patroni/patroni.yml"] # Ensure config is mapped or use Env vars
+
+  # ===== HAProxy Load Balancer for Coordinators =====
+  haproxy:
+    image: haproxy:2.9
+    container_name: citus_haproxy
+    networks: [citus_net]
+    ports:
+      - "5000:5000"  # HAProxy stats
+      - "5400:5400"  # Load balanced PostgreSQL coordinator port
+      - "5500:5500"  # Load balanced PostgreSQL worker port
+    volumes:
+      - ./haproxy/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro
+
+    healthcheck:
+      test: ["CMD", "haproxy", "-c", "-f", "/usr/local/etc/haproxy/haproxy.cfg"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  # ===== PgBouncer Connection Pooling =====
+  pgbouncer:
+    image: edoburu/pgbouncer:latest
+    container_name: citus_pgbouncer
+    networks: [citus_net]
+    ports:
+      - "6432:6432"  # PgBouncer port
+    volumes:
+      - ./pgbouncer/pgbouncer.ini:/etc/pgbouncer/pgbouncer.ini:ro
+      - ./pgbouncer/userlist.txt:/etc/pgbouncer/userlist.txt:ro
+    # depends_on:
+    #   - haproxy
+    environment:
+      DATABASES_HOST: haproxy
+      DATABASES_PORT: 5400
+      POOL_MODE: session
+    healthcheck:
+      test: ["CMD", "pg_isready", "-h", "haproxy", "-p", "6432"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
