@@ -1,0 +1,30 @@
+services:
+  pgbackup:
+    #image: ubuntu:24.04
+    build:
+      context: .
+    container_name: pgbackup_server
+    hostname: pgbackup_server
+    volumes:
+      - ./ssh_keys/id_rsa:/home/pgbackrest/.ssh/id_rsa:ro
+      - ./ssh_keys/id_rsa.pub:/home/pgbackrest/.ssh/id_rsa.pub:ro
+      # This is the "trust" file
+      - ./ssh_keys/authorized_keys:/home/pgbackrest/.ssh/authorized_keys:ro
+      - ./backup_data:/var/lib/pgbackrest  # Persistent volume for backups
+      - ./pgbackrest.conf:/etc/pgbackrest/pgbackrest.conf:ro
+      - ./ssh_keys:/home/pgbackrest/.ssh  # Shared SSH keys for passwordless access
+    networks: [citus_citus_net, pg17-standalone_pg17-net]
+    environment:
+      TZ: "UTC"
+
+# volumes:
+#   backup_data:
+
+networks:
+  citus_citus_net:
+    driver: bridge
+    external: true
+
+  pg17-standalone_pg17-net:
+    driver: bridge
+    external: true
