@@ -133,7 +133,7 @@ docker exec -it postgres_coord3 psql -U postgres -c "SELECT pg_reload_conf();"
 
 Init pgbackrest
 ```bash
-pgbackrest --stanza=citus_cluster stanza-create
+pgbackrest --stanza=citus_coord stanza-create
 ```
 
 ```bash
@@ -160,7 +160,7 @@ Run pgbackrest info
 pgbackrest info
 ```
 
-CLEAN UP the pgbackrest created
+CLEAN UP the pgbackrest --stanza=citus_cluster has been created before
 
 ```bash
 # Stop
