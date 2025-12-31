@@ -1,0 +1,128 @@
+bootstrap:
+  # Method used to create a new cluster
+  # method: pgbackrest
+  # pgbackrest:
+  #   # Use 'restore' to pull from the backup server
+  #   command: "pgbackrest --config=/etc/pgbackrest/pgbackrest.conf --stanza=citus_worker1 --delta restore"
+  #   keep_existing_recovery_conf: True
+  #   no_params: True
+  
+  dcs:
+    ttl: 30
+    loop_wait: 10
+    retry_timeout: 10
+    maximum_lag_on_failover: 1048576
+    synchronous_mode: replica
+    synchronous_mode_strict: True
+
+    postgresql:
+      use_pg_rewind: true
+      use_slots: true # Enable replication slots (new)
+      
+      parameters:
+        wal_level: logical # default is 'replica', but Citus needs 'logical' (new)
+        hot_standby: "on" # Allow read-only queries on replicas (new)
+        # Essential Citus/MMR parameters
+        shared_preload_libraries: 'citus'
+        max_worker_processes: 20
+        max_replication_slots: 10
+        max_wal_senders: 10
+        wal_log_hints: on # Required for pg_rewind (new)
+
+postgresql:
+  data_dir: /var/lib/postgresql/data/pgdata
+  bin_dir: /usr/lib/postgresql/16/bin
+  config_dir: /var/lib/postgresql/data/pgdata
+  pgpass: /var/lib/postgresql/.pgpass
+  parameters:
+    archive_mode: on # Enable WAL archiving
+    archive_command: 'pgbackrest --config=/etc/pgbackrest/pgbackrest.conf --stanza=citus_worker1 archive-push %p' # pgBackRest archive command
+    # Essential for recovery via pgBackRest
+    restore_command: "pgbackrest --config=/etc/pgbackrest/pgbackrest.conf --stanza=citus_worker1 archive-get %f %p"
+
+    # Logging
+    log_destination: 'stderr' #stderr,csvlog
+    log_directory: '/var/log/postgresql'
+    log_filename: 'postgresql-%Y-%m-%d_%H%M%S.log'
+    log_rotation_age: '1d'
+    log_rotation_size: '10MB'
+    logging_collector: on
+    # log_checkpoints: on
+    # log_connections: on - moved below
+    # log_disconnections: on - moved below
+    # log_replication_commands: on
+    log_statement: 'all'             # Log all statements (includes deadlock-related queries)
+    log_min_duration_statement: 100  # Log queries > 100ms (deadlocks often involve slower queries)
+    log_line_prefix: '%t [%p]: [%l-1] user=%u,db=%d,app=%a,client=%h ' # Enhanced prefix for better debugging
+    log_error_verbosity: verbose     # Detailed error information for deadlocks
+    # log_connections: on              # Log connections (helps track deadlock context)
+    # log_disconnections: on           # Log disconnections (helps track deadlock context)
+    log_lock_waits: on              # Log lock waits longer than deadlock_timeout
+
+    #Locking and Timeout performance
+    statement_timeout: 200           # 200 milliseconds timeout
+    lock_timeout: 3000              # 3 seconds
+    deadlock_timeout: 5000          # 5 seconds
+
+  authentication:
+    replication:
+      username: replicator
+      password: replpass
+    superuser:
+      username: postgres
+      password: postgrespass
+    # Citus requires a password for internal node-to-node communication
+    rewind:
+      username: rewind_user
+      password: rewind_password
+
+  pg_hba:
+    - local all postgres trust
+    - local all pgbackrest trust
+    - host all postgres 0.0.0.0/0 scram-sha-256
+    - host replication replicator 0.0.0.0/0 scram-sha-256
+    - host all all 0.0.0.0/0 scram-sha-256
+
+  users:
+    admin:
+      password: adminpass
+      options:
+        - createrole
+        - createdb
+
+  # Tell Patroni to try pgbackrest first, then fallback to basebackup
+  create_replica_methods:
+    - pgbackrest
+    - basebackup
+
+  pgbackrest:
+    # Use --delta to allow pgBackRest to only sync changed files
+    command: | 
+      bash -c "
+      /var/lib/postgresql/patroni_startup_wrapper.sh &&
+      pgbackrest --config=/etc/pgbackrest/pgbackrest.conf --stanza=citus_worker1 --delta --force restore
+      "
+    keep_data: True
+    no_params: True
+
+  basebackup:
+    - checkpoint: fast
+
+  callbacks:
+    on_start: "bash /var/lib/postgresql/patroni_startup_wrapper.sh"
+    on_reload: "bash /var/lib/postgresql/patroni_startup_wrapper.sh"
+
+# Logging configuration
+log:
+  level: INFO
+  format: '%(asctime)s %(levelname)s: %(message)s'
+  file_num: 4
+  file_size: 10240
+  dir: /var/log/patroni
+
+# Tags for this node
+tags:
+  nofailover: false
+  noloadbalance: false
+  clonefrom: false
+  nosync: false

@@ -1,0 +1,1 @@
+"postgres" "SCRAM-SHA-256$4096:Zde841pXKBbldP4j8S4Azg==$vnOzMkgwHCbad4uYNhuXg6/05+Eef6m/Nj7194StJj0=:zWYhxt5jpJZV1Q5cXd42XsbVZRQgqI93piOeLHoIlos="
