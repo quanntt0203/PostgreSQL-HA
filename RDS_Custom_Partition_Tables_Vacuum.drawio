@@ -4,8 +4,8 @@
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
-        <mxCell id="7pn7kFMd7T8_CZ7-pl-b-1" parent="1" style="text;html=1;whiteSpace=wrap;overflow=hidden;rounded=0;" value="&lt;h1 style=&quot;margin-top: 0px;&quot;&gt;RDS - Partition Tables&lt;/h1&gt;&lt;div style=&quot;color: rgb(0, 0, 0); background-color: rgb(255, 255, 255); font-family: Consolas, &amp;quot;Courier New&amp;quot;, monospace; font-size: 14px; line-height: 19px; white-space: pre;&quot;&gt;&lt;span style=&quot;color: rgb(0, 128, 0);&quot;&gt;- pgstattuple&lt;/span&gt;&lt;/div&gt;&lt;div style=&quot;color: rgb(0, 0, 0); background-color: rgb(255, 255, 255); font-family: Consolas, &amp;quot;Courier New&amp;quot;, monospace; font-size: 14px; line-height: 19px; white-space: pre;&quot;&gt;&lt;span style=&quot;color: rgb(0, 128, 0);&quot;&gt;- pg_repack&lt;/span&gt;&lt;/div&gt;&lt;div style=&quot;color: rgb(0, 0, 0); background-color: rgb(255, 255, 255); font-family: Consolas, &amp;quot;Courier New&amp;quot;, monospace; font-size: 14px; line-height: 19px; white-space: pre;&quot;&gt;&lt;span style=&quot;color: rgb(0, 128, 0);&quot;&gt;- pg_cron&lt;/span&gt;&lt;/div&gt;" vertex="1">
-          <mxGeometry height="120" width="280" x="40" as="geometry" />
+        <mxCell id="7pn7kFMd7T8_CZ7-pl-b-1" parent="1" style="text;html=1;whiteSpace=wrap;overflow=hidden;rounded=0;" value="&lt;h1 style=&quot;margin-top: 0px;&quot;&gt;&lt;font style=&quot;font-size: 14px;&quot;&gt;RDS - Partition Tables - Custom Vacuum&lt;/font&gt;&lt;/h1&gt;&lt;div style=&quot;color: rgb(0, 0, 0); background-color: rgb(255, 255, 255); font-family: Consolas, &amp;quot;Courier New&amp;quot;, monospace; font-size: 14px; line-height: 19px; white-space: pre;&quot;&gt;&lt;span style=&quot;color: rgb(0, 128, 0);&quot;&gt;- pgstattuple (native)&lt;/span&gt;&lt;/div&gt;&lt;div style=&quot;color: rgb(0, 0, 0); background-color: rgb(255, 255, 255); font-family: Consolas, &amp;quot;Courier New&amp;quot;, monospace; font-size: 14px; line-height: 19px; white-space: pre;&quot;&gt;&lt;span style=&quot;color: rgb(0, 128, 0);&quot;&gt;- pg_repack (external-AWS recommend)&lt;/span&gt;&lt;/div&gt;&lt;div style=&quot;color: rgb(0, 0, 0); background-color: rgb(255, 255, 255); font-family: Consolas, &amp;quot;Courier New&amp;quot;, monospace; font-size: 14px; line-height: 19px; white-space: pre;&quot;&gt;&lt;span style=&quot;color: rgb(0, 128, 0);&quot;&gt;- pg_cron (native)&lt;/span&gt;&lt;/div&gt;" vertex="1">
+          <mxGeometry height="120" width="320" x="40" as="geometry" />
         </mxCell>
         <mxCell id="7pn7kFMd7T8_CZ7-pl-b-2" parent="1" style="swimlane;startSize=0;" value="" vertex="1">
           <mxGeometry height="240" width="200" x="40" y="150" as="geometry" />
@@ -29,7 +29,7 @@
           <mxGeometry height="30" width="90" x="40" y="115" as="geometry" />
         </mxCell>
         <mxCell id="7pn7kFMd7T8_CZ7-pl-b-9" parent="1" style="swimlane;startSize=0;" value="" vertex="1">
-          <mxGeometry height="140" width="90" x="705" y="60" as="geometry">
+          <mxGeometry height="140" width="90" x="675" y="60" as="geometry">
             <mxRectangle height="40" width="50" x="705" y="60" as="alternateBounds" />
           </mxGeometry>
         </mxCell>
@@ -46,14 +46,14 @@
           <mxGeometry height="30" width="90" y="110" as="geometry" />
         </mxCell>
         <mxCell id="7pn7kFMd7T8_CZ7-pl-b-11" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="Partition Tiers" vertex="1">
-          <mxGeometry height="30" width="95" x="690" y="30" as="geometry" />
+          <mxGeometry height="30" width="95" x="660" y="30" as="geometry" />
         </mxCell>
         <mxCell id="7pn7kFMd7T8_CZ7-pl-b-48" edge="1" parent="1" source="7pn7kFMd7T8_CZ7-pl-b-15" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;">
           <mxGeometry relative="1" as="geometry">
             <mxPoint x="470" y="239" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="7pn7kFMd7T8_CZ7-pl-b-15" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#6d8764;fontColor=#ffffff;strokeColor=#3A5431;" value="Disable AUTOVACUUM" vertex="1">
+        <mxCell id="7pn7kFMd7T8_CZ7-pl-b-15" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#6d8764;fontColor=#ffffff;strokeColor=#3A5431;" value="AUTOVACUUM=OFF" vertex="1">
           <mxGeometry height="40" width="160" x="390" y="150" as="geometry" />
         </mxCell>
         <mxCell id="7pn7kFMd7T8_CZ7-pl-b-19" parent="1" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=26;fillColor=#008a00;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;html=1;fontColor=#ffffff;strokeColor=#005700;" value="HOT" vertex="1">
@@ -80,7 +80,7 @@
             <mxRectangle height="30" width="70" x="340" y="210" as="alternateBounds" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="7pn7kFMd7T8_CZ7-pl-b-33" parent="7pn7kFMd7T8_CZ7-pl-b-32" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" value="VACUUM FULL/pg_repack" vertex="1">
+        <mxCell id="7pn7kFMd7T8_CZ7-pl-b-33" parent="7pn7kFMd7T8_CZ7-pl-b-32" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" value="pg_repack/VACUUM FULL" vertex="1">
           <mxGeometry height="26" width="160" y="26" as="geometry" />
         </mxCell>
         <mxCell id="7pn7kFMd7T8_CZ7-pl-b-34" parent="1" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=26;fillColor=#647687;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;html=1;fontColor=#ffffff;strokeColor=#314354;" value="ARCHIVED" vertex="1">
@@ -156,7 +156,7 @@
         <mxCell id="7pn7kFMd7T8_CZ7-pl-b-56" parent="7pn7kFMd7T8_CZ7-pl-b-55" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="Boat_Ratio&amp;nbsp;&lt;div&gt;10 - 30 %&lt;/div&gt;" vertex="1">
           <mxGeometry height="30" width="100" x="10" y="80" as="geometry" />
         </mxCell>
-        <mxCell id="7pn7kFMd7T8_CZ7-pl-b-59" parent="7pn7kFMd7T8_CZ7-pl-b-55" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="Table Size &amp;gt;= 512G" vertex="1">
+        <mxCell id="7pn7kFMd7T8_CZ7-pl-b-59" parent="7pn7kFMd7T8_CZ7-pl-b-55" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="Table Size &amp;gt;= 512M" vertex="1">
           <mxGeometry height="30" width="100" x="10" y="40" as="geometry" />
         </mxCell>
         <mxCell id="7pn7kFMd7T8_CZ7-pl-b-60" parent="7pn7kFMd7T8_CZ7-pl-b-51" style="swimlane;whiteSpace=wrap;html=1;fillColor=#e3c800;strokeColor=#B09500;startSize=20;fontColor=#000000;" value="COLD" vertex="1">
@@ -182,7 +182,7 @@
         <mxCell id="7pn7kFMd7T8_CZ7-pl-b-65" parent="1" style="swimlane;startSize=0;" value="" vertex="1">
           <mxGeometry height="240" width="520" x="160" y="760" as="geometry" />
         </mxCell>
-        <mxCell id="7pn7kFMd7T8_CZ7-pl-b-70" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="CUSTOM-AUTOVACUUM" vertex="1">
+        <mxCell id="7pn7kFMd7T8_CZ7-pl-b-70" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="CUSTOM-VACUUM" vertex="1">
           <mxGeometry height="30" width="150" x="200" y="729" as="geometry" />
         </mxCell>
         <mxCell id="7pn7kFMd7T8_CZ7-pl-b-72" parent="1" style="label;whiteSpace=wrap;html=1;image=img/clipart/Gear_128x128.png;fillColor=#fa6800;fontColor=#000000;strokeColor=#C73500;" value="pg_cron" vertex="1">
