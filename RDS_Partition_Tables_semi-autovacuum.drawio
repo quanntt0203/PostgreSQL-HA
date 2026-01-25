@@ -127,10 +127,10 @@
           </mxGeometry>
         </mxCell>
         <mxCell id="7pn7kFMd7T8_CZ7-pl-b-56" parent="7pn7kFMd7T8_CZ7-pl-b-55" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="Boat_Ratio&amp;nbsp;&lt;div&gt;10 - 30 %&lt;/div&gt;" vertex="1">
-          <mxGeometry height="30" width="100" x="10" y="80" as="geometry" />
+          <mxGeometry height="30" width="100" x="10" y="40" as="geometry" />
         </mxCell>
         <mxCell id="7pn7kFMd7T8_CZ7-pl-b-59" parent="7pn7kFMd7T8_CZ7-pl-b-55" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="Table Size &amp;gt;= 512M" vertex="1">
-          <mxGeometry height="30" width="100" x="10" y="40" as="geometry" />
+          <mxGeometry height="30" width="100" x="10" y="80" as="geometry" />
         </mxCell>
         <mxCell id="7pn7kFMd7T8_CZ7-pl-b-60" parent="7pn7kFMd7T8_CZ7-pl-b-51" style="swimlane;whiteSpace=wrap;html=1;fillColor=#e3c800;strokeColor=#B09500;startSize=20;fontColor=#000000;" value="COLD" vertex="1">
           <mxGeometry height="160" width="120" x="360" y="40" as="geometry">
@@ -138,13 +138,13 @@
           </mxGeometry>
         </mxCell>
         <mxCell id="7pn7kFMd7T8_CZ7-pl-b-61" parent="7pn7kFMd7T8_CZ7-pl-b-60" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="Boat_Ratio&amp;nbsp;&lt;div&gt;&amp;gt; 30 %&lt;/div&gt;" vertex="1">
-          <mxGeometry height="30" width="100" x="10" y="117" as="geometry" />
-        </mxCell>
-        <mxCell id="7pn7kFMd7T8_CZ7-pl-b-62" parent="7pn7kFMd7T8_CZ7-pl-b-60" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="Table Size &amp;gt;= 512G" vertex="1">
-          <mxGeometry height="30" width="100" x="10" y="74" as="geometry" />
+          <mxGeometry height="30" width="100" x="10" y="80" as="geometry" />
         </mxCell>
         <mxCell id="7pn7kFMd7T8_CZ7-pl-b-63" parent="7pn7kFMd7T8_CZ7-pl-b-60" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="Write_OPS_Hour ~ Low" vertex="1">
           <mxGeometry height="30" width="100" x="14" y="40" as="geometry" />
+        </mxCell>
+        <mxCell id="7pn7kFMd7T8_CZ7-pl-b-62" parent="7pn7kFMd7T8_CZ7-pl-b-60" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="Table Size &amp;gt;= 512M" vertex="1">
+          <mxGeometry height="30" width="100" x="10" y="120" as="geometry" />
         </mxCell>
         <mxCell id="7pn7kFMd7T8_CZ7-pl-b-52" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="Partition Classification" vertex="1">
           <mxGeometry height="30" width="210" x="160" y="450" as="geometry" />
@@ -155,7 +155,7 @@
         <mxCell id="7pn7kFMd7T8_CZ7-pl-b-65" parent="1" style="swimlane;startSize=0;" value="" vertex="1">
           <mxGeometry height="240" width="520" x="160" y="760" as="geometry" />
         </mxCell>
-        <mxCell id="KmhoigsDi__r_e-h1Cif-1" parent="7pn7kFMd7T8_CZ7-pl-b-65" style="rounded=0;whiteSpace=wrap;html=1;align=left;fillColor=#ffcd28;gradientColor=#ffa500;strokeColor=#d79b00;" value="ALTER partition&amp;nbsp;&lt;div&gt;SET autovaluum_on = true;&lt;br&gt;&lt;div&gt;SET autovacuum_scale_factor = 1;&lt;/div&gt;&lt;div&gt;SET autovacuum_threshold = live_tuples;&lt;/div&gt;&lt;div&gt;&amp;nbsp;&amp;nbsp;&lt;/div&gt;&lt;/div&gt;" vertex="1">
+        <mxCell id="KmhoigsDi__r_e-h1Cif-1" parent="7pn7kFMd7T8_CZ7-pl-b-65" style="rounded=0;whiteSpace=wrap;html=1;align=left;fillColor=#ffcd28;gradientColor=#ffa500;strokeColor=#d79b00;" value="ALTER partition&amp;nbsp;&lt;div&gt;SET autovaluum_on = true;&lt;br&gt;&lt;div&gt;SET autovacuum_scale_factor = 1;&lt;/div&gt;&lt;div&gt;SET autovacuum_threshold = ${live_tuples};&lt;/div&gt;&lt;div&gt;&amp;nbsp;&amp;nbsp;&lt;/div&gt;&lt;/div&gt;" vertex="1">
           <mxGeometry height="90" width="200" x="40" y="140" as="geometry" />
         </mxCell>
         <mxCell id="KmhoigsDi__r_e-h1Cif-4" parent="7pn7kFMd7T8_CZ7-pl-b-65" style="rounded=0;whiteSpace=wrap;html=1;align=left;fillColor=#ffcd28;gradientColor=#ffa500;strokeColor=#d79b00;" value="ALTER partition&amp;nbsp;&lt;div&gt;SET autovacuum_scale_factor = ${setting};&lt;/div&gt;&lt;div&gt;SET autovacuum_threshold = ${setting};&lt;/div&gt;&lt;div&gt;&amp;nbsp;&amp;nbsp;&lt;/div&gt;" vertex="1">
